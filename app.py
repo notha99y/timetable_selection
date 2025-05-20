@@ -8,7 +8,7 @@ from search import get_solution
 
 def main():
     st.title("Curtin Timetable Picker")
-    st.write("Developed with ❤️ by Ren Jie")
+    # st.write("Developed with ❤️ by Ren Jie")
     st.write(
         "Paste values in the format: Module, Class, Lecture, Tutorial (tab-separated)"
     )
@@ -45,7 +45,7 @@ def main():
     # Button to run the solution
     if st.button("Run"):
         result_df = get_solution(edited_df, num_combi)
-        if result_df:
+        if result_df is not None:
             st.session_state.solution_df = (
                 result_df  # Store solution in session state
             )
