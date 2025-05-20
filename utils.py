@@ -2,6 +2,18 @@ import re
 from datetime import datetime
 
 
+def get_day(timeslot):
+    """
+    assume timeslot is Day starttime to endtime
+    """
+
+    if type(timeslot) != str:
+        # assume it is na
+        return None
+    else:
+        return timeslot.split(" ")[0]
+
+
 def refine_time_parsing(df, time_column):
     """
     Improves the parsing of time ranges by handling edge cases and filling in missing values.
@@ -34,6 +46,9 @@ def check_overlap(first_class, second_class):
     """
     class: (day, start_time, end_time)
     """
+    if type(first_class[0]) != str or type(second_class[1]) != str:
+        return False
+
     if first_class[1] is None:
         return False
 

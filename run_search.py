@@ -7,11 +7,11 @@ from utils import (
     refine_time_parsing,
 )
 
-csv_path = "data/test.csv"
+csv_path = "data/s2dc2.csv"
 dummy_module_names = ["Module A", "Module B", "Module C", "Module D"]
 df = pd.read_csv(csv_path)
 
-num_combi = 7
+num_combi = 6
 num_units = len(dummy_module_names)
 
 unit_map = {}
@@ -30,12 +30,19 @@ df_cleaned["module_mapped"] = df_cleaned["Module"].apply(lambda x: unit_map[x])
 
 export_cols = ["Module", "Class", "Lecture", "Tutorial"]
 
+max_retries = 100
+
 
 def main():
     solution = []
+    retry_counter = 0
 
     while not check_solution_is_valid(solution, num_combi, num_units):
         print("finding solution...")
+        retry_counter += 1
+        if retry_counter > max_retries:
+            print("solution cant be found")
+            return
         A_df = df_cleaned[df_cleaned["module_mapped"] == "Module A"].sample(
             frac=1
         )
@@ -154,13 +161,16 @@ def main():
 
 if __name__ == "__main__":
     solution = main()
-    result_df = pd.DataFrame()
-    for i, s in enumerate(solution):
-        _temp_df = pd.DataFrame(s)[export_cols]
-        _temp_df["Combi"] = i
-        _temp_df = _temp_df[
-            ["Combi", "Module", "Class", "Lecture", "Tutorial"]
-        ]
-        result_df = pd.concat([result_df, _temp_df])
+    if solution:
+        result_df = pd.DataFrame()
+        for i, s in enumerate(solution):
+            _temp_df = pd.DataFrame(s)[export_cols]
+            _temp_df["Combi"] = i
+            _temp_df = _temp_df[
+                ["Combi", "Module", "Class", "Lecture", "Tutorial"]
+            ]
+            result_df = pd.concat([result_df, _temp_df])
 
-    result_df.reset_index(inplace=True, drop=True)
+        result_df.reset_index(inplace=True, drop=True)
+
+        print(result_df)

@@ -3,14 +3,18 @@ import pandas as pd
 from utils import (
     check_conflict,
     check_solution_is_valid,
+    get_day,
     print_solution,
     refine_time_parsing,
 )
 
+max_retries = 100
+
 
 def get_solution(df, num_combi):
-    df = df.replace(r"^\s*$", pd.NA, regex=True).dropna()
-    print(df)
+    retry_counter = 0
+    # df = df.replace(r"^\s*$", pd.NA, regex=True).dropna()
+    # print(df)
     dummy_module_names = ["Module A", "Module B", "Module C", "Module D"]
     export_cols = ["Module", "Class", "Lecture", "Tutorial"]
     num_units = len(dummy_module_names)
@@ -24,19 +28,20 @@ def get_solution(df, num_combi):
     # Reapply refined parsing to lecture and tutorial times
     df_cleaned = refine_time_parsing(df, "Lecture")
     df_cleaned = refine_time_parsing(df, "Tutorial")
-    df_cleaned["lecture_day"] = df["Lecture"].apply(lambda x: x.split(" ")[0])
-    df_cleaned["tutorial_day"] = df["Tutorial"].apply(
-        lambda x: x.split(" ")[0]
-    )
+    df_cleaned["lecture_day"] = df["Lecture"].apply(get_day)
+    df_cleaned["tutorial_day"] = df["Tutorial"].apply(get_day)
     print(df_cleaned.head())
     df_cleaned["module_mapped"] = df_cleaned["Module"].apply(
         lambda x: unit_map[x]
     )
 
     solution = []
-
     while not check_solution_is_valid(solution, num_combi, num_units):
         print("finding solution...")
+        retry_counter += 1
+        if retry_counter > max_retries:
+            print("solution cant be found")
+            return
         A_df = df_cleaned[df_cleaned["module_mapped"] == "Module A"].sample(
             frac=1
         )

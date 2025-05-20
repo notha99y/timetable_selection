@@ -13,7 +13,7 @@ def main():
         "Paste values in the format: Module, Class, Lecture, Tutorial (tab-separated)"
     )
     st.write(
-        "Lecture and Tutorial Format is day, start_time , end_time. e.g. Mon 1030am to 1230pm"
+        "Lecture and Tutorial Format is day, start_time , end_time. e.g. Mon 4.30pm to 6pm"
     )
 
     num_combi = st.number_input("Number of Combination", min_value=0, value=4)
@@ -45,13 +45,16 @@ def main():
     # Button to run the solution
     if st.button("Run"):
         result_df = get_solution(edited_df, num_combi)
-        st.session_state.solution_df = (
-            result_df  # Store solution in session state
-        )
+        if result_df:
+            st.session_state.solution_df = (
+                result_df  # Store solution in session state
+            )
 
-        # Show result if available
-        st.write("Generated Schedule:")
-        st.dataframe(result_df)
+            # Show result if available
+            st.write("Generated Schedule:")
+            st.dataframe(result_df)
+        else:
+            st.info("Schedule cannot be found", icon="ℹ️")
 
     # Download button
     if "solution_df" in st.session_state:
